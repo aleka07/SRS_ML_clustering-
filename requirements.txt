@@ -1,0 +1,7 @@
+# requirements.txt
+pandas
+nltk
+scikit-learn
+matplotlib
+seaborn
+scipy # Often needed by scikit-learn for sparse matrices
