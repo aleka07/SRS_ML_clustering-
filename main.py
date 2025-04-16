@@ -129,7 +129,7 @@ if __name__ == "__main__":
     # --- Configuration ---
     # Ideally, load this from a YAML/JSON file or use argparse for command-line args
     pipeline_config = {
-        "data_path": "arXiv_scientific_dataset.csv",  # <--- IMPORTANT: SET YOUR FILE PATH HERE
+        "data_path": "arXiv_scientific dataset.csv",  # <--- IMPORTANT: SET YOUR FILE PATH HERE
         "sample_size": 2000,           # Use None for full dataset, or an integer for sampling
         "random_state": 42,
         "vectorizer_method": "tfidf",  # 'tfidf'

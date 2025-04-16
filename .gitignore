@@ -1,5 +1,9 @@
 venv_gem/*
 outputs/*
-arXiv_scientific_dataset.csv
-arXiv_scientific_dataset.csv
-arXiv_scientific_dataset.csv
+arXiv_scientific dataset.csv
+clustering/__pycache__/*
+data_loader/__pycache__/*
+evaluation/__pycache__/*
+preprocessing/__pycache__/*
+visualization/__pycache__/*
+
