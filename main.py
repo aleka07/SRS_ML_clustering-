@@ -120,6 +120,37 @@ def run_pipeline(config):
         except Exception as e:
             logging.error(f"Failed to save output CSV: {e}")
 
+    # ---- Дополнительное сохранение для 3D визуализации ----
+    data_for_3d_path = config.get('data_for_3d_prefix') # Новый параметр конфига
+    if data_for_3d_path:
+        vector_path = f"{data_for_3d_path}_vectors.npz"
+        labels_path = f"{data_for_3d_path}_labels.npy"
+        # Итоговый CSV уже сохранен, если указан output_csv_path
+
+        try:
+            # Сохраняем разреженную матрицу векторов
+            from scipy.sparse import save_npz
+            save_npz(vector_path, vectorized_data)
+            logging.info(f"Vectorized data saved to {vector_path}")
+
+            # Сохраняем метки кластеров
+            import numpy as np
+            np.save(labels_path, labels)
+            logging.info(f"Cluster labels saved to {labels_path}")
+
+            # Убедимся, что основной CSV тоже сохранен (если путь был указан)
+            if not config.get('output_csv_path'):
+                 logging.warning(f"Output CSV path was not specified, but needed for 3D viz tooltips.")
+                 # Можно добавить принудительное сохранение тут, если нужно
+                 # temp_csv_path = f"{data_for_3d_path}_data.csv"
+                 # df_output = df[['id', 'title', 'summary', 'processed_summary', 'cluster_label']]
+                 # df_output.to_csv(temp_csv_path, index=False)
+                 # logging.info(f"Temporary data CSV saved to {temp_csv_path}")
+
+
+        except Exception as e:
+            logging.error(f"Failed to save data for 3D visualization: {e}")
+    # --------------------------------------------------------
 
     end_time = time.time()
     logging.info(f"Pipeline finished in {end_time - start_time:.2f} seconds.")
@@ -140,7 +171,8 @@ if __name__ == "__main__":
         "evaluation_metrics": ["silhouette", "davies_bouldin"], # Metrics to compute
         "visualization_method": "tsne", # 'pca', 'tsne', 'svd'
         "plot_save_path": "arxiv_clusters_tsne.png", # Set path to save plot, or None to display
-        "output_csv_path": "arxiv_clustered_output.csv" # Set path to save clustered data, or None
+        "output_csv_path": "arxiv_clustered_output.csv", # Set path to save clustered data, or None
+        "data_for_3d_prefix": "results_for_3d" # Префикс для файлов с векторами и метками
     }
 
     # --- Argument Parser (Example for command-line execution) ---
@@ -152,6 +184,7 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--vis", type=str, default=pipeline_config["visualization_method"], choices=['pca', 'tsne', 'svd'], help="Visualization method")
     parser.add_argument("--saveplot", type=str, default=pipeline_config["plot_save_path"], help="File path to save the cluster plot (e.g., plot.png)")
     parser.add_argument("--savecsv", type=str, default=pipeline_config["output_csv_path"], help="File path to save the clustered output CSV (e.g., results.csv)")
+    parser.add_argument("--save3d", type=str, default=pipeline_config["data_for_3d_prefix"], help="Prefix for saving vectorized data and labels for 3D visualization (e.g., 'results_3d'). If empty, data is not saved.")
 
     args = parser.parse_args()
 
@@ -163,6 +196,7 @@ if __name__ == "__main__":
     pipeline_config["visualization_method"] = args.vis
     pipeline_config["plot_save_path"] = args.saveplot
     pipeline_config["output_csv_path"] = args.savecsv
+    pipeline_config["data_for_3d_prefix"] = args.save3d if args.save3d else None # None если пустая строка
 
 
     # --- Run Pipeline ---
